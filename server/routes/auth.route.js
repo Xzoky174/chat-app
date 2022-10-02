@@ -34,9 +34,11 @@ router.post("/signup", signedOutRequired, credsRequired, async (req, res) => {
 
   if (username.length < 4)
     return res.status(409).send("Username must be more than 3 characters");
-  if (password.length < 8)
+  else if (username.length > 20)
+    return res.status(409).send("Username must not be more than 20 characters");
+  else if (password.length < 8)
     return res.status(409).send("Password must be more than 7 characters");
-  if ((await global.User.findOne({ username })) !== null)
+  else if ((await global.User.findOne({ username })) !== null)
     return res.status(409).send("Username is Taken");
 
   const hashed = await bcrypt.hash(password, 15);
