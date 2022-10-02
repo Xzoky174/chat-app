@@ -13,7 +13,7 @@
 
 	onMount(async () => {
 		userStore.subscribe((userState) => {
-			if (userState === null) return goto('/');
+			if (userState === null) return goto('/signin');
 		});
 	});
 
