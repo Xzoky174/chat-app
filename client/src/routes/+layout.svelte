@@ -5,6 +5,8 @@
 	import { authenticated } from '$lib/authenticated';
 	import type { User } from '$lib/interfaces/user.interface';
 
+	import Navbar from '$lib/components/Navbar.svelte';
+
 	let userStore: Writable<User | null> = writable();
 	setContext('user', userStore);
 
@@ -14,4 +16,12 @@
 	});
 </script>
 
-<slot />
+<Navbar />
+<main><slot /></main>
+
+<style>
+	main {
+		padding: 0 8px;
+		padding-top: 60px;
+	}
+</style>
