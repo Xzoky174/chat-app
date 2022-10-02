@@ -1,16 +1,15 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { getContext, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { io, Socket } from 'socket.io-client';
 
-	import { authenticated } from '$lib/authenticated';
-
 	import type { Message } from '$lib/interfaces/message.interface';
 	import type { User } from '$lib/interfaces/user.interface';
+	import type { Writable } from 'svelte/store';
 
 	let socket: Socket<any>;
 
-	let user: User | null;
+	let user: User | null = null;
 
 	let messageContent: string;
 
@@ -22,9 +21,15 @@
 
 	let friendRequests = 0;
 
+	let userStore: Writable<User | null> = getContext('user');
+
 	onMount(async () => {
-		user = await authenticated();
-		if (user === null) return goto('/signin', { replaceState: true });
+		userStore.subscribe((userState) => {
+			if (userState === null) return goto('/');
+			user = userState;
+		});
+
+		if (user === null) return;
 
 		await (async () => {
 			friends = (

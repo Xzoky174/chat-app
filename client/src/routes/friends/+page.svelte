@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
+	import { getContext, onMount } from 'svelte';
+	import type { Writable } from 'svelte/store';
 
-	import { authenticated } from '$lib/authenticated';
+	import type { User } from '$lib/interfaces/user.interface';
 
 	let friends: [any];
 	let requests: [any];
@@ -10,6 +11,8 @@
 
 	let loaded = false;
 	let uid = '';
+
+	let userStore: Writable<User | null> = getContext('user');
 
 	const load = async () => {
 		const response = await (
@@ -27,10 +30,11 @@
 	};
 
 	onMount(async () => {
-		const user = await authenticated();
+		userStore.subscribe((userState) => {
+			if (userState === null) return goto('/');
 
-		if (user === null) return goto('/signin', { replaceState: true });
-		uid = user._id;
+			uid = userState._id;
+		});
 
 		load();
 	});

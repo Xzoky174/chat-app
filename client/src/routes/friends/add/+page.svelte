@@ -1,16 +1,21 @@
 <script lang="ts">
+	import { getContext, onMount } from 'svelte';
+	import type { Writable } from 'svelte/store';
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
 
 	import { authenticated } from '$lib/authenticated';
+	import type { User } from '$lib/interfaces/user.interface';
 
 	let uid: string;
 
 	let status: string;
 
+	let userStore: Writable<User | null> = getContext('user');
+
 	onMount(async () => {
-		const user = await authenticated();
-		if (user === null) return goto('/signin', { replaceState: true });
+		userStore.subscribe((userState) => {
+			if (userState === null) return goto('/');
+		});
 	});
 
 	const submit = async () => {
