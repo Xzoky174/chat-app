@@ -175,4 +175,6 @@
 		<input type="text" placeholder="Type" bind:value={messageContent} required />
 		<button type="submit">Enter</button>
 	</form>
+{:else}
+	<p>You don't have any friends added yet. <a href="/friends/add">Add some friends!</a></p>
 {/if}
