@@ -38,7 +38,7 @@
 
 <style>
 	.container {
-		height: calc(100vh - 60px);
+		height: calc(100vh - var(--navbar-height));
 		display: grid;
 		place-items: center;
 	}
