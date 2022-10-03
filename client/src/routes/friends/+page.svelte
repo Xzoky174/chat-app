@@ -109,6 +109,8 @@
 			</p>
 		{/each}
 	</section>
+{:else}
+	<h1>You don't have any friends yet.</h1>
 {/if}
 
 {#if loaded && sent.length > 0}
