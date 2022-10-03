@@ -26,7 +26,7 @@
 		{/if}
 
 		{#if user}
-			<p>{user.username}</p>
+			<p><a href="/signout">Signout ({user.username})</a></p>
 		{/if}
 	</ul>
 </nav>
@@ -47,18 +47,18 @@
 		justify-content: center;
 		align-items: center;
 	}
-	ul p {
+	ul > p {
 		margin: 0;
 		position: absolute;
-		right: 55px;
+		right: 35px;
 		cursor: pointer;
 	}
-	li a {
+	a {
 		color: rgba(0, 0, 0, 0.7);
 		text-decoration: none;
 		margin: 0 5px;
 	}
-	li a:hover {
+	a:hover {
 		color: #000;
 	}
 </style>
