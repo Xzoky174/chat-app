@@ -16,8 +16,8 @@
 
 <nav>
 	<ul>
-		<li><a href="/">Home</a></li>
 		{#if user}
+			<li><a href="/">Home</a></li>
 			<li><a href="/friends">Friends</a></li>
 			<li><a href="/friends/add">Add Friend</a></li>
 		{:else}
