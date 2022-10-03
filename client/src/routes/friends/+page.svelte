@@ -10,7 +10,6 @@
 	let sent: [any];
 
 	let loaded = false;
-	let uid = '';
 
 	let userStore: Writable<User | null> = getContext('user');
 
@@ -32,8 +31,6 @@
 	onMount(async () => {
 		userStore.subscribe((userState) => {
 			if (userState === null) return goto('/signin');
-
-			uid = userState._id;
 		});
 
 		load();
@@ -86,45 +83,78 @@
 		loaded = false;
 		load();
 	};
-
-	const copy = () => navigator.clipboard.writeText(uid);
 </script>
 
 {#if loaded && requests.length > 0}
-	<h1>Requests</h1>
+	<section>
+		<h1>Requests</h1>
 
-	{#each requests as request}
-		<p>
-			{request.from.username}
-			<button on:click={() => accept(request.from._id)}>accept</button>
-			<button on:click={() => reject(request.from._id)}>reject</button>
-		</p>
-	{/each}
+		{#each requests as request}
+			<p>
+				{request.from.username}
+				<button class="add" on:click={() => accept(request.from._id)}>Accept</button>
+				<button class="remove" on:click={() => reject(request.from._id)}>Reject</button>
+			</p>
+		{/each}
+	</section>
 {/if}
 
 {#if loaded && friends.length > 0}
-	<h1>Friends</h1>
+	<section>
+		<h1>Friends</h1>
 
-	{#each friends as friend}
-		<p>{friend.username} <button on:click={() => remove(friend._id)}>remove</button></p>
-	{/each}
+		{#each friends as friend}
+			<p>
+				{friend.username} <button class="remove" on:click={() => remove(friend._id)}>Remove</button>
+			</p>
+		{/each}
+	</section>
 {/if}
 
 {#if loaded && sent.length > 0}
-	<h1>Sent Requests</h1>
+	<section>
+		<h1>Sent Requests</h1>
 
-	{#each sent as sent}
-		<p>{sent.to.username}</p>
-	{/each}
+		{#each sent as sent}
+			<p>{sent.to.username}</p>
+		{/each}
+	</section>
 {/if}
 
-<a href="/friends/add">Add Friend</a>
+<a class="add-friend" href="/friends/add">Add Friend</a>
 
-{#if uid}
-	<h3>Uid:</h3>
-
-	<div>
-		<input type="text" value={uid} disabled />
-		<button on:click={copy}>Copy</button>
-	</div>
-{/if}
+<style>
+	section {
+		margin: 8px 0 25px 0;
+	}
+	.add,
+	.remove,
+	.add-friend {
+		color: #fff;
+		padding: 4px 8px;
+		cursor: pointer;
+		border: 0;
+		border-radius: 4px;
+		transition: 0.25s;
+		text-decoration: none;
+	}
+	.add:hover,
+	.remove:hover,
+	.add-friend:hover {
+		opacity: 0.85;
+	}
+	.add {
+		background-color: #2ecc71;
+	}
+	.remove {
+		background-color: #e74c3c;
+	}
+	.add-friend {
+		margin-top: 24px;
+		background-color: #9b59b6;
+		padding: 8px 10px;
+	}
+	h1 {
+		margin: 0;
+	}
+</style>
