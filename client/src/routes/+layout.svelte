@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { writable, type Writable } from 'svelte/store';
 	import { onMount, setContext } from 'svelte';
 
@@ -6,6 +7,7 @@
 	import type { User } from '$lib/interfaces/user.interface';
 
 	import Navbar from '$lib/components/Navbar.svelte';
+	import Transition from '$lib/components/Transition.svelte';
 
 	let userStore: Writable<User | null> = writable();
 	setContext('user', userStore);
@@ -17,7 +19,11 @@
 </script>
 
 <Navbar />
-<main><slot /></main>
+<main>
+	<Transition url={$page.url}>
+		<slot />
+	</Transition>
+</main>
 
 <style>
 	main {
