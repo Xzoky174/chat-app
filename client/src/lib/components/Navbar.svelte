@@ -36,6 +36,8 @@
 		width: 100%;
 		padding: 20px 10px;
 		position: fixed;
+		z-index: 99;
+		background-color: rgba(255, 255, 255, 0.96);
 	}
 	ul {
 		padding: 0;
