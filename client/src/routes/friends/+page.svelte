@@ -125,7 +125,7 @@
 
 <style>
 	section {
-		margin: 8px 0 25px 0;
+		margin: 8px 0 0 0;
 	}
 	.add,
 	.remove,
@@ -150,7 +150,8 @@
 		background-color: #e74c3c;
 	}
 	.add-friend {
-		margin-top: 24px;
+		display: inline-block;
+		margin-top: 8px;
 		background-color: #9b59b6;
 		padding: 8px 10px;
 	}
