@@ -4,6 +4,7 @@
 	import type { Writable } from 'svelte/store';
 
 	import type { User } from '$lib/interfaces/user.interface';
+	import { authenticated } from '$lib/authenticated';
 
 	let username: string;
 	let password: string;
@@ -36,6 +37,11 @@
 
 		const text = await res.text();
 		error = text;
+
+		if (text === 'Successful!') {
+			const user = await authenticated();
+			userStore.set(user);
+		}
 	}
 
 	const passValid = () => {
