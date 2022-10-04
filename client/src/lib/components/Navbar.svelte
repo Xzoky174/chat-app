@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { getContext, onMount } from 'svelte';
 	import type { Writable } from 'svelte/store';
 
@@ -7,9 +8,15 @@
 	let user: User | null;
 	let userStore: Writable<User | null> = getContext('user');
 
+	let url: URL | null;
+
 	onMount(async () => {
 		userStore.subscribe((userState) => {
 			user = userState;
+		});
+
+		page.subscribe((pageState) => {
+			url = pageState.url;
 		});
 	});
 </script>
@@ -17,16 +24,24 @@
 <nav>
 	<ul>
 		{#if user}
-			<li><a href="/">Home</a></li>
-			<li><a href="/friends">Friends</a></li>
-			<li><a href="/friends/add">Add Friend</a></li>
+			<li><a href="/" class={url?.pathname === '/' ? 'active' : ''}>Home</a></li>
+			<li><a href="/friends" class={url?.pathname === '/friends' ? 'active' : ''}>Friends</a></li>
+			<li>
+				<a href="/friends/add" class={url?.pathname === '/friends/add' ? 'active' : ''}
+					>Add Friend</a
+				>
+			</li>
 		{:else}
-			<li><a href="/signin">Sign In</a></li>
-			<li><a href="/signup">Sign Up</a></li>
+			<li><a href="/signin" class={url?.pathname === '/signin' ? 'active' : ''}>Sign In</a></li>
+			<li><a href="/signup" class={url?.pathname === '/signup' ? 'active' : ''}>Sign Up</a></li>
 		{/if}
 
 		{#if user}
-			<p><a href="/signout">Signout ({user.username})</a></p>
+			<p>
+				<a href="/signout" class={url?.pathname === '/signout' ? 'active' : ''}
+					>Signout ({user.username})</a
+				>
+			</p>
 		{/if}
 	</ul>
 </nav>
@@ -58,7 +73,8 @@
 		text-decoration: none;
 		margin: 0 5px;
 	}
-	a:hover {
+	a:hover,
+	.active {
 		color: #000;
 	}
 </style>
