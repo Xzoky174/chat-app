@@ -1,7 +1,7 @@
 {
   "name": "chatapp",
   "version": "1.0.0",
-  "description": "(Successor of [global chat app](https://github.com/Xzoky174/global-chat-app))",
+  "description": "",
   "scripts": {
     "server": "cd ./server && yarn dev",
     "client": "cd ./client && npm run dev"
