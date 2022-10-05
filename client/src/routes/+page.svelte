@@ -1,3 +1,4 @@
+<!-- TODO: Make messages container scroll to bottom automatically -->
 <script lang="ts">
 	import { getContext, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -13,6 +14,8 @@
 
 	let messageContent: string;
 
+	let messagesDiv: HTMLElement;
+
 	let messages: any = {};
 	let currMessages: Message[] = [];
 
@@ -23,15 +26,7 @@
 
 	let userStore: Writable<User | null> = getContext('user');
 
-	onMount(async () => {
-		userStore.subscribe((userState) => {
-			if (userState === null) goto('/signin');
-
-			user = userState;
-		});
-
-		if (user === null) return;
-
+	const load = async () => {
 		await (async () => {
 			friends = (
 				await (
@@ -42,11 +37,13 @@
 				).json()
 			).friends;
 
-			selected = friends[0].username;
+			if (friends.length > 0) {
+				selected = friends[0].username;
 
-			friends.forEach((friend) => {
-				messages[friend.username] = [];
-			});
+				friends.forEach((friend) => {
+					messages[friend.username] = [];
+				});
+			}
 		})();
 
 		(async () => {
@@ -63,7 +60,7 @@
 		socket = io('http://localhost:3000');
 		socket.connect();
 
-		socket.emit('init', { id: user._id });
+		socket.emit('init', { id: user!._id });
 		socket.on(
 			'load',
 			(data: {
@@ -126,10 +123,19 @@
 				currMessages = messages[selected];
 			}
 		);
+	};
+
+	onMount(() => {
+		userStore.subscribe((userState) => {
+			if (userState === null) goto('/signin');
+
+			user = userState;
+		});
+		user && load();
 	});
 
-	const friendChange = (e: any) => {
-		selected = e.target.value;
+	const friendChange = (username: string) => {
+		selected = username;
 		currMessages = messages[selected];
 	};
 
@@ -139,6 +145,7 @@
 		const reciever = friends.find((user) => user.username === selected) as User;
 
 		socket.emit('message', { content: messageContent, to: reciever._id });
+
 		messageContent = '';
 	};
 </script>
@@ -148,33 +155,143 @@
 {/if}
 
 {#if friends.length > 0}
-	<select on:change={friendChange}>
-		{#each friends as friend}
-			<option selected={friend.username === selected}>{friend.username}</option>
-		{/each}
-	</select>
+	<div class="main">
+		<div class="friends">
+			{#each friends as friend}
+				<button
+					class="friend {friend.username === selected ? 'friend-selected' : ''}"
+					on:click={() => friendChange(friend.username)}>{friend.username}</button
+				>
+			{/each}
+		</div>
 
-	<br />
+		<div class="content">
+			<div class="messages" id="messages" bind:this={messagesDiv}>
+				{#if currMessages.length > 0}
+					{#each currMessages as message}
+						<p class="message {message.isOS ? 'message-os' : ''}">
+							<b>
+								{#if message.isOS}
+									(You)
+								{:else}
+									({selected})
+								{/if}
+							</b>
+							{message.content}
+						</p>
+					{/each}
+				{:else}
+					<p class="no-messages">No Messages Here.</p>
+				{/if}
+			</div>
 
-	{#if currMessages.length > 0}
-		{#each currMessages as message}
-			<p>
-				<b>
-					{#if message.isOS}
-						You
-					{:else}
-						{selected}
-					{/if}
-				</b>
-				: {message.content}
-			</p>
-		{/each}
-	{/if}
-
-	<form on:submit|preventDefault={submit}>
-		<input type="text" placeholder="Type" bind:value={messageContent} required />
-		<button type="submit">Enter</button>
-	</form>
+			<form class="message-form" on:submit|preventDefault={submit}>
+				<input
+					class="message-form-input"
+					type="text"
+					placeholder="Type"
+					bind:value={messageContent}
+					required
+				/>
+				<button class="message-form-submit" type="submit">Send</button>
+			</form>
+		</div>
+	</div>
 {:else}
-	<p>You don't have any friends added yet. <a href="/friends/add">Add some friends!</a></p>
+	<div class="no-friends">
+		<p>You don't have any friends added yet. <a href="/friends/add">Add some friends!</a></p>
+	</div>
 {/if}
+
+<style>
+	p {
+		margin: 0;
+	}
+	.no-friends {
+		height: calc(100vh - var(--navbar-height));
+		display: grid;
+		place-items: center;
+		font-size: 24px;
+	}
+	.no-friends a {
+		text-decoration: none;
+		color: #3498db;
+	}
+	.no-friends a:hover {
+		text-decoration: underline;
+	}
+
+	.main {
+		height: calc(100vh - var(--navbar-height));
+		display: grid;
+		grid-template-columns: 20% 80%;
+	}
+	.friends {
+		padding: 12px 20px;
+		border-right: 2px solid #ced4da;
+	}
+	.friend {
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: block;
+		margin: 0 0 15px 0;
+		border: 0;
+		background-color: #fff;
+		cursor: pointer;
+		transition: 0.25s;
+		color: rgba(0, 0, 0, 0.6);
+		font-size: 20px;
+	}
+	.friend:hover,
+	.friend-selected {
+		color: #000;
+	}
+	.content {
+		padding: 12px 20px;
+		display: grid;
+		grid-template-rows: 1fr;
+		min-height: 0;
+	}
+	.messages {
+		overflow-y: auto;
+		padding: 0 15px;
+		padding-top: 25px;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+	.message {
+		font-size: 24px;
+		margin-bottom: 2px;
+	}
+	.message-os {
+		align-self: end;
+	}
+	.message-form {
+		display: grid;
+		grid-template-columns: 9.2fr 0.8fr;
+		position: relative;
+	}
+	.message-form-input {
+		display: block;
+		font-size: 22px;
+		padding: 8px 12px;
+		border: 2px solid #ced4da;
+		border-radius: 4px 0 0 4px;
+	}
+	.message-form-submit {
+		font-size: 22px;
+		color: #fff;
+		cursor: pointer;
+		border: 0;
+		border-radius: 0 4px 4px 0;
+		transition: 0.25s;
+		text-decoration: none;
+		background-color: #3498db;
+		padding: 8px 16px;
+	}
+	.message-form-submit:hover {
+		opacity: 0.85;
+	}
+</style>
