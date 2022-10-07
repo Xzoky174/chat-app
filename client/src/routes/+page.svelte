@@ -1,4 +1,3 @@
-<!-- TODO: Make messages container scroll to bottom automatically -->
 <script lang="ts">
 	import { getContext, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -11,10 +10,18 @@
 	let socket: Socket<any>;
 
 	let user: User | null = null;
+	$: {
+		if (user) load();
+	}
 
 	let messageContent: string;
 
 	let messagesDiv: HTMLElement;
+	$: {
+		if (currMessages && messagesDiv) {
+			scrollBottom();
+		}
+	}
 
 	let messages: any = {};
 	let currMessages: Message[] = [];
@@ -121,6 +128,7 @@
 				});
 
 				currMessages = messages[selected];
+				scrollBottom();
 			}
 		);
 	};
@@ -131,8 +139,13 @@
 
 			user = userState;
 		});
-		user && load();
 	});
+
+	const scrollBottom = () => {
+		setTimeout(() => {
+			messagesDiv.scroll({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
+		}, 1000);
+	};
 
 	const friendChange = (username: string) => {
 		selected = username;
